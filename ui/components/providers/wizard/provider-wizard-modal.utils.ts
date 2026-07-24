@@ -39,12 +39,18 @@ export function getProviderWizardDocsDestination(docsLink: string) {
     kubernetes: "Kubernetes",
     github: "GitHub",
     iac: "IaC",
+    image: "Image",
+    oci: "Oracle Cloud",
     oraclecloud: "Oracle Cloud",
     mongodbatlas: "MongoDB Atlas",
     alibabacloud: "Alibaba Cloud",
     cloudflare: "Cloudflare",
     openstack: "OpenStack",
+    googleworkspace: "Google Workspace",
+    vercel: "Vercel",
+    okta: "Okta",
     help: "Provider",
+    providers: "Provider",
   };
 
   try {
@@ -59,6 +65,7 @@ export function getProviderWizardDocsDestination(docsLink: string) {
     }
 
     const compactDestination = lastSegment
+      .replace(/^getting-started-/, "")
       .replace(/^provider-/, "")
       .replace(/^prowler-cloud-/, "");
     const mappedDestination = destinationLabelMap[compactDestination];

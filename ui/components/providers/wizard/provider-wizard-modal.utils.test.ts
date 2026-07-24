@@ -53,12 +53,20 @@ describe("getProviderWizardModalTitle", () => {
 });
 
 describe("getProviderWizardDocsDestination", () => {
-  it("returns a compact provider label for short provider docs links", () => {
+  it("returns a compact provider label for deep-linked provider docs URLs", () => {
     const destination = getProviderWizardDocsDestination(
-      "https://goto.prowler.com/provider-aws",
+      "https://docs.prowler.com/user-guide/providers/aws/getting-started-aws",
     );
 
     expect(destination).toBe("AWS");
+  });
+
+  it("maps the OCI docs path to the Oracle Cloud label", () => {
+    const destination = getProviderWizardDocsDestination(
+      "https://docs.prowler.com/user-guide/providers/oci/getting-started-oci",
+    );
+
+    expect(destination).toBe("Oracle Cloud");
   });
 
   it("returns a compact destination label for long docs links", () => {

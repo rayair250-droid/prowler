@@ -50,92 +50,95 @@ const buildCloudFormationQuickCreateLink = (
   return `${CF_QUICKCREATE_BASE_URL}?${searchParams.toString()}`;
 };
 
+// Deep-links to each provider's onboarding docs section. Kept as direct
+// docs.prowler.com URLs (rather than goto.prowler.com shortlinks) so the
+// destination is visible at review time and there is no hidden redirect hop.
 export const getProviderHelpText = (provider: string) => {
   switch (provider) {
     case "aws":
       return {
         text: "Need help connecting your AWS account?",
-        link: "https://goto.prowler.com/provider-aws",
+        link: "https://docs.prowler.com/user-guide/providers/aws/getting-started-aws",
       };
     case "azure":
       return {
         text: "Need help connecting your Azure subscription?",
-        link: "https://goto.prowler.com/provider-azure",
+        link: "https://docs.prowler.com/user-guide/providers/azure/getting-started-azure",
       };
     case "m365":
       return {
         text: "Need help connecting your Microsoft 365 account?",
-        link: "https://goto.prowler.com/provider-m365",
+        link: "https://docs.prowler.com/user-guide/providers/microsoft365/getting-started-m365",
       };
     case "gcp":
       return {
         text: "Need help connecting your GCP project?",
-        link: "https://goto.prowler.com/provider-gcp",
+        link: "https://docs.prowler.com/user-guide/providers/gcp/getting-started-gcp",
       };
     case "kubernetes":
       return {
         text: "Need help connecting your Kubernetes cluster?",
-        link: "https://goto.prowler.com/provider-k8s",
+        link: "https://docs.prowler.com/user-guide/providers/kubernetes/getting-started-k8s",
       };
     case "github":
       return {
         text: "Need help connecting your GitHub account?",
-        link: "https://goto.prowler.com/provider-github",
+        link: "https://docs.prowler.com/user-guide/providers/github/getting-started-github",
       };
     case "iac":
       return {
         text: "Need help scanning your Infrastructure as Code repository?",
-        link: "https://goto.prowler.com/provider-iac",
+        link: "https://docs.prowler.com/user-guide/providers/iac/getting-started-iac",
       };
     case "image":
       return {
         text: "Need help scanning your container registry?",
-        link: "https://goto.prowler.com/provider-image",
+        link: "https://docs.prowler.com/user-guide/providers/image/getting-started-image",
       };
     case "oraclecloud":
       return {
         text: "Need help connecting your Oracle Cloud account?",
-        link: "https://goto.prowler.com/provider-oraclecloud",
+        link: "https://docs.prowler.com/user-guide/providers/oci/getting-started-oci",
       };
     case "mongodbatlas":
       return {
         text: "Need help connecting your MongoDB Atlas organization?",
-        link: "https://goto.prowler.com/provider-mongodbatlas",
+        link: "https://docs.prowler.com/user-guide/providers/mongodbatlas/getting-started-mongodbatlas",
       };
     case "alibabacloud":
       return {
         text: "Need help connecting your Alibaba Cloud account?",
-        link: "https://goto.prowler.com/provider-alibabacloud",
+        link: "https://docs.prowler.com/user-guide/providers/alibabacloud/getting-started-alibabacloud",
       };
     case "cloudflare":
       return {
         text: "Need help connecting your Cloudflare account?",
-        link: "https://goto.prowler.com/provider-cloudflare",
+        link: "https://docs.prowler.com/user-guide/providers/cloudflare/getting-started-cloudflare",
       };
     case "openstack":
       return {
         text: "Need help connecting your OpenStack cloud?",
-        link: "https://goto.prowler.com/provider-openstack",
+        link: "https://docs.prowler.com/user-guide/providers/openstack/getting-started-openstack",
       };
     case "googleworkspace":
       return {
         text: "Need help connecting your Google Workspace account?",
-        link: "https://goto.prowler.com/provider-googleworkspace",
+        link: "https://docs.prowler.com/user-guide/providers/googleworkspace/getting-started-googleworkspace",
       };
     case "vercel":
       return {
         text: "Need help connecting your Vercel team?",
-        link: "https://goto.prowler.com/provider-vercel",
+        link: "https://docs.prowler.com/user-guide/providers/vercel/getting-started-vercel",
       };
     case "okta":
       return {
         text: "Need help connecting your Okta organization?",
-        link: "https://goto.prowler.com/provider-okta",
+        link: "https://docs.prowler.com/user-guide/providers/okta/getting-started-okta",
       };
     default:
       return {
         text: "How to setup a provider?",
-        link: "https://goto.prowler.com/provider-help",
+        link: "https://docs.prowler.com/user-guide/providers/",
       };
   }
 };
