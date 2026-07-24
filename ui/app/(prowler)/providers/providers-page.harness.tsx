@@ -15,7 +15,6 @@ import { userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
 
 import { handlersForOrganizations } from "@/__tests__/msw/handlers/organizations";
-import { NODE_KIND } from "@/__tests__/msw/handlers/organizations.fixtures";
 import type {
   FixtureNode,
   FixtureOrganization,
@@ -31,11 +30,13 @@ import {
 import { RUNTIME_CONFIG_SCRIPT_ID } from "@/lib/runtime-config.shared";
 import type { ProviderProps } from "@/types";
 import type {
+  OrganizationNodeResource,
   OrganizationResource,
   OrganizationType,
-  OrganizationUnitResource,
 } from "@/types/organizations";
 import {
+  HIERARCHY_STATUS,
+  type HierarchyStatus,
   PROVIDERS_ROW_TYPE,
   type ProvidersProviderRow,
   type ProvidersTableRow,
@@ -51,6 +52,12 @@ interface MountOptions {
   openWizard?: boolean;
   /** Runtime-config island `cloudEnabled` — drives `isCloud()`. Default true. */
   cloud?: boolean;
+  /**
+   * Hierarchy-fetch status the page resolves server-side. Passed straight to
+   * the view since browser mode cannot mount `loadProvidersAccountsViewData`;
+   * `unavailable` drives the degraded-view notice. Default available.
+   */
+  hierarchyStatus?: HierarchyStatus;
 }
 
 export class ProvidersPageHarness {
@@ -98,7 +105,11 @@ export class ProvidersPageHarness {
     );
   }
 
-  mount({ openWizard = true, cloud = true }: MountOptions = {}): void {
+  mount({
+    openWizard = true,
+    cloud = true,
+    hierarchyStatus = HIERARCHY_STATUS.AVAILABLE,
+  }: MountOptions = {}): void {
     this.seedRuntimeConfigIsland(cloud);
     this.seedWizardUrl(openWizard);
     worker.use(...handlersForOrganizations(this.fixture));
@@ -124,6 +135,7 @@ export class ProvidersPageHarness {
           providers={providers}
           rows={rows}
           providerGroups={[]}
+          hierarchyStatus={hierarchyStatus}
         />
       </SessionProvider>,
     );
@@ -190,21 +202,22 @@ export class ProvidersPageHarness {
         providers: {
           data: org.providerIds.map((id) => ({ id, type: "providers" })),
         },
-        organizational_units: {
-          data: org.nodeIds.map((id) => ({ id, type: "organizational-units" })),
+        organization_nodes: {
+          data: org.nodeIds.map((id) => ({ id, type: "organization-nodes" })),
         },
       },
     };
   }
 
-  private toOrganizationUnitResource(
+  private toOrganizationNodeResource(
     node: FixtureNode,
-  ): OrganizationUnitResource {
+  ): OrganizationNodeResource {
     return {
       id: node.id,
-      type: "organizational-units",
+      type: "organization-nodes",
       attributes: {
         name: node.name,
+        kind: node.kind,
         external_id: node.externalId,
         parent_external_id: node.parentExternalId,
         metadata: {},
@@ -227,16 +240,16 @@ export class ProvidersPageHarness {
   }
 
   private buildTableRows(cloud: boolean): ProvidersTableRow[] {
-    // The current (AWS-only) grouping transform consumes `/organizational-units`;
-    // GCP folders are ignored here exactly as production ignores them today.
+    // Canonical grouping consumes all organization nodes (AWS OUs + GCP
+    // folders), mirroring `loadProvidersAccountsViewData` post-Phase 1.
     return buildProvidersTableRows({
       isCloud: cloud,
       organizations: this.fixture.organizations.map((org) =>
         this.toOrganizationResource(org),
       ),
-      organizationUnits: this.fixture.nodes
-        .filter((node) => node.kind === NODE_KIND.ORGANIZATIONAL_UNIT)
-        .map((node) => this.toOrganizationUnitResource(node)),
+      organizationNodes: this.fixture.nodes.map((node) =>
+        this.toOrganizationNodeResource(node),
+      ),
       providers: this.fixture.providers.map((provider) =>
         this.toProviderRow(provider),
       ),
