@@ -6,6 +6,7 @@ import { ReactNode, Suspense } from "react";
 
 import { getProviders } from "@/actions/providers";
 import { getScansByState } from "@/actions/scans/scans";
+import { FeaturebaseFeedback } from "@/components/feedback/featurebase-feedback";
 import MainLayout from "@/components/layout/main-layout/main-layout";
 import {
   OnboardingCheckpointWatcher,
@@ -108,6 +109,7 @@ export default async function RootLayout({
             </>
           )}
           <MainLayout>{children}</MainLayout>
+          <FeaturebaseFeedback />
           {/* Always mounted: it hosts the detail (finding/resource) views in
               every deployment; the AI tab inside is cloud-gated on its own. */}
           <GlobalSidePanel />

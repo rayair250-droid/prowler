@@ -4,14 +4,21 @@ import { EMPTY_RUNTIME_PUBLIC_CONFIG } from "@/lib/runtime-config.shared";
 
 // Stable mock fns shared across module re-evaluations (resetModules clears the
 // module registry but these hoisted fns survive, so assertions stay reliable).
-const { initMock, setUserMock, captureMock, getConfigMock } = vi.hoisted(
-  () => ({
-    initMock: vi.fn(),
-    setUserMock: vi.fn(),
-    captureMock: vi.fn(),
-    getConfigMock: vi.fn(),
-  }),
-);
+const {
+  initMock,
+  setUserMock,
+  captureMock,
+  getConfigMock,
+  posthogCaptureMock,
+  reportFailureMock,
+} = vi.hoisted(() => ({
+  initMock: vi.fn(),
+  setUserMock: vi.fn(),
+  captureMock: vi.fn(),
+  getConfigMock: vi.fn(),
+  posthogCaptureMock: vi.fn(),
+  reportFailureMock: vi.fn(),
+}));
 
 vi.mock("@sentry/nextjs", () => ({
   init: initMock,
@@ -22,6 +29,13 @@ vi.mock("@sentry/nextjs", () => ({
 
 vi.mock("@/lib/get-runtime-config.client", () => ({
   getRuntimeConfigClient: getConfigMock,
+}));
+vi.mock("posthog-js", () => ({
+  default: { capture: posthogCaptureMock },
+}));
+vi.mock("@/lib/featurebase-observability", () => ({
+  FEATUREBASE_FAILURE_STAGE: { ANALYTICS: "analytics" },
+  reportFeaturebaseFailure: reportFailureMock,
 }));
 
 vi.mock(
@@ -39,6 +53,8 @@ describe("instrumentation-client Sentry init", () => {
     initMock.mockClear();
     setUserMock.mockClear();
     captureMock.mockClear();
+    posthogCaptureMock.mockReset();
+    reportFailureMock.mockReset();
     getConfigMock.mockReset();
   });
 
@@ -96,5 +112,59 @@ describe("instrumentation-client Sentry init", () => {
     expect(options.debug).toBe(false);
     expect(options.tracesSampleRate).toBe(0.5);
     expect(setUserMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("Featurebase PostHog instrumentation", () => {
+  it("tracks a Featurebase open with the singleton and no properties", async () => {
+    // Given
+    getConfigMock.mockReturnValue({ ...EMPTY_RUNTIME_PUBLIC_CONFIG });
+    const { trackFeaturebaseFeedbackOpened } = await import(
+      "@/instrumentation-client"
+    );
+
+    // When
+    trackFeaturebaseFeedbackOpened();
+
+    // Then
+    expect(posthogCaptureMock).toHaveBeenCalledWith(
+      "featurebase_feedback_opened",
+    );
+    expect(posthogCaptureMock.mock.calls[0]).toHaveLength(1);
+  });
+
+  it("tracks a Featurebase submission with the singleton and no properties", async () => {
+    // Given
+    getConfigMock.mockReturnValue({ ...EMPTY_RUNTIME_PUBLIC_CONFIG });
+    const { trackFeaturebaseFeedbackSubmitted } = await import(
+      "@/instrumentation-client"
+    );
+
+    // When
+    trackFeaturebaseFeedbackSubmitted();
+
+    // Then
+    expect(posthogCaptureMock).toHaveBeenCalledWith(
+      "featurebase_feedback_submitted",
+    );
+    expect(posthogCaptureMock.mock.calls[0]).toHaveLength(1);
+  });
+
+  it("fails open when PostHog capture throws", async () => {
+    // Given
+    posthogCaptureMock.mockImplementation(() => {
+      throw new Error("test analytics failure");
+    });
+    getConfigMock.mockReturnValue({ ...EMPTY_RUNTIME_PUBLIC_CONFIG });
+    const { trackFeaturebaseFeedbackOpened } = await import(
+      "@/instrumentation-client"
+    );
+
+    // When / Then
+    expect(trackFeaturebaseFeedbackOpened).not.toThrow();
+    expect(reportFailureMock).toHaveBeenCalledWith(
+      "analytics",
+      expect.any(Error),
+    );
   });
 });

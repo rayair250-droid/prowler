@@ -56,6 +56,15 @@ export const GATED_INTEGRATIONS: Record<string, GatedIntegration> = {
     ],
     optional: [],
   },
+  featurebase: {
+    name: "Featurebase",
+    enableKey: "UI_FEATUREBASE_ENABLED",
+    required: [
+      { key: "UI_FEATUREBASE_APP_ID" },
+      { key: "FEATUREBASE_JWT_SECRET" },
+    ],
+    optional: [],
+  },
 } as const satisfies Record<string, GatedIntegration>;
 
 // Resolve a config value honoring the gate. The new `primary` (UI_*) name is

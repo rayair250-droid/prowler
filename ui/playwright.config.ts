@@ -172,6 +172,10 @@ export default defineConfig({
       E2E_ADMIN_USER: process.env.E2E_ADMIN_USER || "e2e@prowler.com",
       E2E_ADMIN_PASSWORD:
         process.env.E2E_ADMIN_PASSWORD || "Thisisapassword123@",
+      UI_CLOUD_ENABLED: "true",
+      UI_FEATUREBASE_ENABLED: "true",
+      UI_FEATUREBASE_APP_ID: "66b77ce20c73d6a35afca1d0",
+      FEATUREBASE_JWT_SECRET: "obvious-non-secret-e2e-fixture",
     },
   },
 });

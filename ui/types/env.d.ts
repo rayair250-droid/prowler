@@ -64,6 +64,9 @@ declare global {
       /** @deprecated use UI_POSTHOG_HOST */
       POSTHOG_HOST?: string;
       UI_POSTHOG_HOST?: string;
+      UI_FEATUREBASE_ENABLED?: "true" | "false";
+      UI_FEATUREBASE_APP_ID?: string;
+      FEATUREBASE_JWT_SECRET?: string;
       // TODO Reserved runtime public config (registered now; no UI consumer yet)
       REO_DEV_CLIENT_ID?: string;
 

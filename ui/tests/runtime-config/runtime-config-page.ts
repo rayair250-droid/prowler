@@ -21,6 +21,7 @@ export const RUNTIME_CONFIG_KEYS = [
   "reoDevClientId",
   "cloudBillingEnabled",
   "cloudEnabled",
+  "featurebaseAppId",
   "stripePublishableKey",
   "stripePublishableKeyV2",
 ] as const satisfies ReadonlyArray<keyof RuntimePublicConfig>;

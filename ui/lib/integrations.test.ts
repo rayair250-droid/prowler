@@ -22,6 +22,9 @@ const GATED_ENV_VARS = [
   "POSTHOG_KEY",
   "UI_POSTHOG_HOST",
   "POSTHOG_HOST",
+  "UI_FEATUREBASE_ENABLED",
+  "UI_FEATUREBASE_APP_ID",
+  "FEATUREBASE_JWT_SECRET",
 ] as const;
 
 beforeEach(() => {
@@ -210,6 +213,33 @@ describe("assertGatedIntegrations", () => {
 
     // When / Then
     expect(() => assertGatedIntegrations()).toThrow("POSTHOG_HOST");
+  });
+
+  it("requires the Featurebase App ID when Featurebase is enabled", () => {
+    // Given
+    vi.stubEnv("UI_FEATUREBASE_ENABLED", "true");
+
+    // When / Then
+    expect(() => assertGatedIntegrations()).toThrow("UI_FEATUREBASE_APP_ID");
+  });
+
+  it("requires the Featurebase JWT secret when Featurebase is enabled", () => {
+    // Given
+    vi.stubEnv("UI_FEATUREBASE_ENABLED", "true");
+    vi.stubEnv("UI_FEATUREBASE_APP_ID", "app-id");
+
+    // When / Then
+    expect(() => assertGatedIntegrations()).toThrow("FEATUREBASE_JWT_SECRET");
+  });
+
+  it("accepts a complete enabled Featurebase configuration", () => {
+    // Given
+    vi.stubEnv("UI_FEATUREBASE_ENABLED", "true");
+    vi.stubEnv("UI_FEATUREBASE_APP_ID", "app-id");
+    vi.stubEnv("FEATUREBASE_JWT_SECRET", "test-signing-secret");
+
+    // When / Then
+    expect(() => assertGatedIntegrations()).not.toThrow();
   });
 });
 

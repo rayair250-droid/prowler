@@ -8,19 +8,46 @@ const { withSentryConfig } = require("@sentry/nextjs");
 // HTTP Security Headers
 // 'unsafe-eval' is configured under `script-src` because it is required by NextJS for development mode.
 //
-// CSP is static; the JSON config island is inert (no nonce needed). A runtime
-// Sentry DSN must be in `connect-src` below — `*.sentry.io` covers Sentry Cloud,
-// but a self-hosted/region host is blocked until per-request CSP (middleware) lands.
-const cspHeader = `
+// The JSON config island is inert (no nonce needed). A runtime Sentry DSN must
+// be in `connect-src` below — `*.sentry.io` covers Sentry Cloud, but a
+// self-hosted/region host is blocked until per-request CSP (middleware) lands.
+const getCspHeader = () => {
+  const featurebaseEnabled =
+    process.env.UI_CLOUD_ENABLED === "true" &&
+    process.env.UI_FEATUREBASE_ENABLED === "true" &&
+    Boolean(process.env.UI_FEATUREBASE_APP_ID);
+  const featurebase = featurebaseEnabled
+    ? {
+        script: " https://do.featurebase.app",
+        connect: " https://*.featurebase.app wss://*.featurebase.app",
+        image:
+          " https://*.featurebase.app https://*.featurebase-attachments.com https://fb-usercontent.fra1.cdn.digitaloceanspaces.com",
+        style: " https://do.featurebase.app",
+        frame: " https://*.featurebase.app",
+        media:
+          "  media-src 'self' https://*.featurebase.app https://*.featurebase-attachments.com;",
+      }
+    : {
+        script: "",
+        connect: "",
+        image: "",
+        style: "",
+        frame: "",
+        media: "",
+      };
+
+  return `
   default-src 'self';
-  script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://www.googletagmanager.com https://browser.sentry-cdn.com;
-  connect-src 'self' https://api.iconify.design https://api.simplesvg.com https://api.unisvg.com https://js.stripe.com https://www.googletagmanager.com https://*.sentry.io https://*.ingest.sentry.io;
-  img-src 'self' https://www.google-analytics.com https://www.googletagmanager.com;
+  script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://www.googletagmanager.com https://browser.sentry-cdn.com${featurebase.script};
+  connect-src 'self' https://api.iconify.design https://api.simplesvg.com https://api.unisvg.com https://js.stripe.com https://www.googletagmanager.com https://*.sentry.io https://*.ingest.sentry.io${featurebase.connect};
+  img-src 'self' https://www.google-analytics.com https://www.googletagmanager.com${featurebase.image};
   font-src 'self';
-  style-src 'self' 'unsafe-inline';
-  frame-src 'self' https://js.stripe.com https://www.googletagmanager.com;
+  style-src 'self' 'unsafe-inline'${featurebase.style};
+  frame-src 'self' https://js.stripe.com https://www.googletagmanager.com${featurebase.frame};
+${featurebase.media}
   frame-ancestors 'none';
 `;
+};
 
 const nextConfig = {
   poweredByHeader: false,
@@ -39,7 +66,7 @@ const nextConfig = {
     const headers = [
       {
         key: "Content-Security-Policy",
-        value: cspHeader.replace(/\n/g, ""),
+        value: getCspHeader().replace(/\n/g, ""),
       },
       {
         key: "X-Content-Type-Options",

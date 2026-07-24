@@ -15,16 +15,42 @@
  */
 
 import * as Sentry from "@sentry/nextjs";
+import postHogClient from "posthog-js";
 
 import {
   cancelProgress,
   startProgress,
 } from "@/components/shadcn/navigation-progress/use-navigation-progress";
+import {
+  FEATUREBASE_FAILURE_STAGE,
+  reportFeaturebaseFailure,
+} from "@/lib/featurebase-observability";
 import { getRuntimeConfigClient } from "@/lib/get-runtime-config.client";
 import {
   applySentryEventPolicy,
   SENTRY_EVENT_SOURCE,
 } from "@/sentry/event-policy";
+
+const FEATUREBASE_ANALYTICS_EVENTS = {
+  OPENED: "featurebase_feedback_opened",
+  SUBMITTED: "featurebase_feedback_submitted",
+} as const;
+
+const trackPostHogEvent = (eventName: string): void => {
+  try {
+    postHogClient.capture(eventName);
+  } catch (error) {
+    reportFeaturebaseFailure(FEATUREBASE_FAILURE_STAGE.ANALYTICS, error);
+  }
+};
+
+export const trackFeaturebaseFeedbackOpened = (): void => {
+  trackPostHogEvent(FEATUREBASE_ANALYTICS_EVENTS.OPENED);
+};
+
+export const trackFeaturebaseFeedbackSubmitted = (): void => {
+  trackPostHogEvent(FEATUREBASE_ANALYTICS_EVENTS.SUBMITTED);
+};
 
 export const NAVIGATION_TYPE = {
   PUSH: "push",

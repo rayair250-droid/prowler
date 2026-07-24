@@ -9,6 +9,7 @@ export interface RuntimePublicConfig {
   posthogKey: string | null; // reserved
   posthogHost: string | null; // reserved
   reoDevClientId: string | null; // reserved
+  featurebaseAppId: string | null;
   cloudEnabled: boolean;
   cloudBillingEnabled: boolean;
   stripePublishableKey: string | null; // reserved
@@ -27,6 +28,7 @@ export const EMPTY_RUNTIME_PUBLIC_CONFIG: RuntimePublicConfig = {
   posthogKey: null,
   posthogHost: null,
   reoDevClientId: null,
+  featurebaseAppId: null,
   cloudEnabled: false,
   cloudBillingEnabled: false,
   stripePublishableKey: null,
@@ -45,6 +47,7 @@ const pickConfig = (
   posthogKey: parsed.posthogKey ?? null,
   posthogHost: parsed.posthogHost ?? null,
   reoDevClientId: parsed.reoDevClientId ?? null,
+  featurebaseAppId: parsed.featurebaseAppId ?? null,
   cloudEnabled: parsed.cloudEnabled ?? false,
   cloudBillingEnabled: parsed.cloudBillingEnabled ?? false,
   stripePublishableKey: parsed.stripePublishableKey ?? null,

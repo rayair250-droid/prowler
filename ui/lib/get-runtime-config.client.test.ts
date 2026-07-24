@@ -45,6 +45,7 @@ describe("getRuntimeConfigClient", () => {
     // Keys not present in the island fall back to null.
     expect(config.googleTagManagerId).toBeNull();
     expect(config.posthogKey).toBeNull();
+    expect(config.featurebaseAppId).toBeNull();
   });
 
   it("falls back to an all-null config when the island is absent", async () => {
@@ -114,6 +115,7 @@ describe("getRuntimeConfigClient", () => {
         "apiDocsUrl",
         "cloudBillingEnabled",
         "cloudEnabled",
+        "featurebaseAppId",
         "googleTagManagerId",
         "posthogHost",
         "posthogKey",
